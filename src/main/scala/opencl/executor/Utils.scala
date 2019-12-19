@@ -2,9 +2,9 @@ package opencl.executor
 
 import java.awt.image.BufferedImage
 import java.io.{File, IOException}
+import org.junit.Assume
 
 import javax.imageio.ImageIO
-import org.junit.Assume
 
 object LongTestsEnabled {
   def apply(): Unit =
