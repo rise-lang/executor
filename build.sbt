@@ -1,10 +1,21 @@
+ThisBuild / scalaVersion     := "2.11.12"
+ThisBuild / organization     := "org.rise-lang"
 
-scalaVersion     := "2.12.8"
-version          := "0.1.0-SNAPSHOT"
-organization     := "com.example"
- organizationName := "example"
+lazy val buildExecutor = taskKey[Unit]("Builds C executor library")
 
-lazy val root = (project in file("."))
+buildExecutor := {
+  import scala.language.postfixOps
+  import scala.sys.process._
+  //noinspection PostfixMethodCall
+  "echo y" #| "./buildExecutor.sh" !
+}
+
+lazy val executor = (project in file("."))
   .settings(
-    name := "opencl/executor"
+    name    := "OpenCL executor",
+    version := "1.0",
+    libraryDependencies += "junit" % "junit" % "4.11",
+
+    compile := ((compile in Compile) dependsOn buildExecutor).value,
+    test    := ((test in Test) dependsOn buildExecutor).value
   )
