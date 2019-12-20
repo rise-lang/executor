@@ -16,6 +16,8 @@ lazy val executor = (project in file("."))
     version := "1.0",
     libraryDependencies += "junit" % "junit" % "4.11",
 
+    compileOrder := CompileOrder.JavaThenScala,
+
     compile := ((compile in Compile) dependsOn buildExecutor).value,
     test    := ((test in Test) dependsOn buildExecutor).value
   )
