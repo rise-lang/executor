@@ -7,7 +7,7 @@ buildExecutor := {
   import scala.language.postfixOps
   import scala.sys.process._
   //noinspection PostfixMethodCall
-  "echo y" #| "./buildExecutor.sh" !
+  "echo y" #| (baseDirectory.value + "/buildExecutor.sh") !
 }
 
 lazy val executor = (project in file("."))

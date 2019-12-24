@@ -2,6 +2,8 @@
 
 set -e
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 function check_command() {
   echo -ne "Checking for ${1}... "
   if ! type "$1" > /dev/null; then
@@ -16,15 +18,15 @@ function configure() {
   check_command "cmake"
   check_command "g++"
 
-  mkdir -p lib/Executor/build
-  (cd lib/Executor/build && cmake ..)
+  mkdir -p $DIR/lib/Executor/build
+  (cd $DIR/lib/Executor/build && cmake ..)
 }
 
 function build() {
   check_command "g++"
   check_command "cmake"
 
-  (cd lib/Executor/build &&  make -j 4)
+  (cd $DIR/lib/Executor/build &&  make -j 4)
 }
 
 echo "Configure Executor"
