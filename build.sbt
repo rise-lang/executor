@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion     := "2.11.12"
+ThisBuild / scalaVersion     := "2.12.10"
 ThisBuild / organization     := "org.rise-lang"
 
 lazy val buildExecutor = taskKey[Unit]("Builds C executor library")

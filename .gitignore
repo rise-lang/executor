@@ -1,4 +1,6 @@
 .idea
+.metals
+.bloop
 project
 target
 modules.xml
