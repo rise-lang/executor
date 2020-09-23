@@ -2,24 +2,26 @@ package opencl.executor
 
 import java.awt.image.BufferedImage
 import java.io.{File, IOException}
+
 import org.junit.Assume
 
+import scala.collection.parallel.CollectionConverters._
 import javax.imageio.ImageIO
 
 object LongTestsEnabled {
   def apply(): Unit =
     Assume.assumeTrue("Needs long tests enabled.", areEnabled)
 
-  def areEnabled =
+  def areEnabled: Boolean =
     System.getenv("LIFT_LONG_TESTS") != null
 
 }
 
 object Utils {
 
-  def isApplePlatform = Executor.getPlatformName == "Apple"
+  def isApplePlatform: Boolean = Executor.getPlatformName == "Apple"
 
-  def isAmdGpu =
+  def isAmdGpu: Boolean =
     Executor.getPlatformName == "AMD Accelerated Parallel Processing" && 
     Executor.getDeviceType == "GPU"
 
@@ -81,11 +83,11 @@ object Utils {
   }
 
 
-  def add(A: Array[Array[Float]], B: Array[Array[Float]]) = {
+  def add(A: Array[Array[Float]], B: Array[Array[Float]]): Array[Array[Float]] = {
     if (A.length != B.length || A.head.length != B.length)
       throw new IllegalArgumentException
 
-    (A, B).zipped.map((x, y) => (x, y).zipped.map(_+_))
+    A.lazyZip(B).map((x, y) => x.lazyZip(y).map(_+_))
   }
 
   /*
@@ -95,7 +97,7 @@ object Utils {
   def matrixMatrixPatternMultiply(A: Array[Array[Float]], B: Array[Array[Float]]): Array[Array[Float]] = {
     val Bt = B.transpose
     A.map( Arow =>
-      Bt.map( Bcol => (Arow, Bcol).zipped.map(_ * _).sum )
+      Bt.map( Bcol => Arow.lazyZip(Bcol).map(_ * _).sum )
     )
   }
 
@@ -161,31 +163,31 @@ object Utils {
 
   def matrixVector(matrix: Array[Array[Float]], vector: Array[Float]): Array[Float] = {
     matrix.map(
-      (row) => (row, vector).zipped.map(_ * _).sum
+      row => row.lazyZip(vector).map(_ * _).sum
     )
   }
 
   def matrixVector(matrix: Array[Array[Float]], vectorX: Array[Float], vectorY: Array[Float]): Array[Float] = {
     val tmp = matrix.map(
-      (row) => (row, vectorX).zipped.map(_ * _).sum
+      row => row.lazyZip(vectorX).map(_ * _).sum
     )
-    (tmp, vectorY).zipped.map(_ + _)
+    tmp.lazyZip(vectorY).map(_ + _)
   }
 
   def matrixVector(matrix: Array[Array[Float]], vector: Array[Float], alpha: Float): Array[Float] = {
     matrix.map(
-      (row) => (row, vector).zipped.map(_ * _).sum * alpha
+      row => row.lazyZip(vector).map(_ * _).sum * alpha
     )
   }
 
   def matrixVector(matrix: Array[Array[Float]], vectorX: Array[Float], vectorY: Array[Float], alpha: Float, beta: Float): Array[Float] = {
     val tmp = matrix.map(
-      (row) => (row, vectorX).zipped.map(_ * _).sum * alpha
+      row => row.lazyZip(vectorX).map(_ * _).sum * alpha
     )
 
     val scaledY = vectorY.map(_ * beta)
 
-    (tmp, scaledY).zipped.map(_ + _)
+    tmp.lazyZip(scaledY).map(_ + _)
   }
 
   /*
@@ -195,7 +197,7 @@ object Utils {
                             size: Int, step: Int,
                             left: Int, right: Int,
                             weights: Array[Float],
-                            boundary: (Int, Int) => Int) = {
+                            boundary: (Int, Int) => Int): Array[Float] = {
     val leftPadding = Array.tabulate(left)(x => data(boundary((x + 1) * -1, data.length))).reverse
     val rightPadding = Array.tabulate(right)(x => data(boundary(x + data.length, data.length)))
     val paddedInput = leftPadding ++ data ++ rightPadding
@@ -210,7 +212,7 @@ object Utils {
                             top: Int, bottom: Int,
                             left: Int, right: Int,
                             weights: Array[Float],
-                            boundary: (Int, Int) => Int) = {
+                            boundary: (Int, Int) => Int): Array[Float] = {
     val neighbours = scalaGenerate2DNeighbours(data, size1, step1, size2, step2,
       top, bottom, left, right, boundary)
     val result = neighbours.map(x => x.map(y => y.flatten.zip(weights).foldLeft(0.0f)((acc, p) => acc + p._1 * p._2)))
@@ -245,15 +247,15 @@ object Utils {
   }
 
   // Boundary conditions implemented as scala functions for gold versions
-  val scalaClamp = (idx: Int, length: Int) => {
+  val scalaClamp: (Int, Int) => Int = (idx: Int, length: Int) => {
     if (idx < 0) 0 else if (idx > length - 1) length - 1 else idx
   }
 
-  val scalaWrap = (idx: Int, length: Int) => {
+  val scalaWrap: (Int, Int) => Int = (idx: Int, length: Int) => {
     (idx % length + length) % length
   }
 
-  val scalaMirror = (idx: Int, length: Int) => {
+  val scalaMirror: (Int, Int) => Int = (idx: Int, length: Int) => {
     val id = (if (idx < 0) -1 - idx else idx) % (2 * length)
     if (id >= length) length + length - id - 1 else id
   }
