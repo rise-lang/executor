@@ -1,6 +1,3 @@
-ThisBuild / scalaVersion     := "2.12.10"
-ThisBuild / organization     := "org.rise-lang"
-
 lazy val buildExecutor = taskKey[Unit]("Builds C executor library")
 
 buildExecutor := {
@@ -14,7 +11,10 @@ lazy val executor = (project in file("."))
   .settings(
     name    := "OpenCL executor",
     version := "1.0",
+    scalaVersion := "2.13.3",
+    organization := "org.rise-lang",
     libraryDependencies += "junit" % "junit" % "4.11",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
 
     compileOrder := CompileOrder.JavaThenScala,
 
