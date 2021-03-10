@@ -11,10 +11,10 @@ lazy val executor = (project in file("."))
   .settings(
     name    := "OpenCL executor",
     version := "1.0",
-    scalaVersion := "2.13.3",
+    scalaVersion := "3.0.0-RC1",
     organization := "org.rise-lang",
     libraryDependencies += "junit" % "junit" % "4.11",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parallel-collections" % "1.0.1",
 
     compileOrder := CompileOrder.JavaThenScala,
 
