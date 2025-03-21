@@ -18,10 +18,6 @@ if (${UNIX})
   endif (${APPLE})
 endif (${UNIX})
 
-# include custom cmake modules (e.g. FindOpenCL.cmake)
-# NOTE: this breaks things on newer systems
-# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
-
 project (Executor)
 
 option (BUILD_SHARED_LIBS "Build shared libraries (DLLs)." ON)
@@ -30,6 +26,9 @@ if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release)
 endif (NOT CMAKE_BUILD_TYPE)
 
+# see:
+# https://github.com/KhronosGroup/OpenCL-Headers
+# https://github.com/KhronosGroup/OpenCL-ICD-Loader
 find_package (OpenCL REQUIRED)
 find_package (JNI)
 
