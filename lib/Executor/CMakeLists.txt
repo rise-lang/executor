@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 
 if (${WIN32})
   message ("Build on Windows not (yet) supported.")
@@ -6,18 +6,17 @@ endif (${WIN32})
 
 # set compiler and default options
 if (${UNIX})
+  # FIXME: not sure when required: -stdlib=libc++
   if (${APPLE})
     set (CMAKE_CXX_COMPILER "clang++" CACHE STRING "CXX Compiler.")
-    set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -DGTEST_USE_OWN_TR1_TUPLE=1 -Wall -Wextra"
+    set (CMAKE_CXX_FLAGS "-std=c++11 -DGTEST_USE_OWN_TR1_TUPLE=1 -Wall -Wextra"
       CACHE STRING "Flags used by the compiler during all build types.")
   else (${APPLE})
-    set (CMAKE_CXX_FLAGS "-std=c++0x -Wall -Wextra -pthread"
+    set (CMAKE_CXX_COMPILER "clang++" CACHE STRING "CXX Compiler.")
+    set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pthread"
       CACHE STRING "Flags used by the compiler during all build types.")
   endif (${APPLE})
 endif (${UNIX})
-
-# include custom cmake modules (e.g. FindOpenCL.cmake)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
 project (Executor)
 
@@ -27,7 +26,10 @@ if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE Release)
 endif (NOT CMAKE_BUILD_TYPE)
 
-find_package (OpenCL)
+# see:
+# https://github.com/KhronosGroup/OpenCL-Headers
+# https://github.com/KhronosGroup/OpenCL-ICD-Loader
+find_package (OpenCL REQUIRED)
 find_package (JNI)
 
 include_directories (
@@ -67,6 +69,6 @@ set (SOURCES
 
 
 add_library (executor-jni ${SOURCES})
-target_link_libraries (executor-jni ${OPENCL_LIBRARIES} ${JNI_LIBRARIES} pthread)
+target_link_libraries (executor-jni OpenCL::OpenCL ${JNI_LIBRARIES} pthread)
 
 
