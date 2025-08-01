@@ -9,11 +9,11 @@ if (${UNIX})
   # FIXME: not sure when required: -stdlib=libc++
   if (${APPLE})
     set (CMAKE_CXX_COMPILER "clang++" CACHE STRING "CXX Compiler.")
-    set (CMAKE_CXX_FLAGS "-std=c++11 -DGTEST_USE_OWN_TR1_TUPLE=1 -Wall -Wextra"
+    set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -DGTEST_USE_OWN_TR1_TUPLE=1 -Wall -Wextra"
       CACHE STRING "Flags used by the compiler during all build types.")
   else (${APPLE})
     set (CMAKE_CXX_COMPILER "clang++" CACHE STRING "CXX Compiler.")
-    set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pthread"
+    set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wall -Wextra -pthread"
       CACHE STRING "Flags used by the compiler during all build types.")
   endif (${APPLE})
 endif (${UNIX})
